@@ -130,9 +130,9 @@ mysql -u root -p perpustakaan < database/perpustakaan.sql
 
 Buka browser dan akses:
 ```
-http://localhost/pertemuan_12
+http://localhost/Library_management
 atau
-http://localhost/pertemuan_12/index.php
+http://localhost/Library_management/index.php
 ```
 
 ---
