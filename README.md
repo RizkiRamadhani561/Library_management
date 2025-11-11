@@ -70,8 +70,8 @@ Aplikasi web untuk mengelola sistem perpustakaan dengan fitur peminjaman, pengem
 
 **Opsi A: Clone dari Git**
 ```bash
-git clone https://github.com/username/sistem-perpustakaan.git
-cd pertemuan_12
+https://github.com/RizkiRamadhani561/Library_management.git
+cd Library_management
 ```
 
 **Opsi B: Download Manual**
@@ -81,7 +81,7 @@ cd pertemuan_12
 
 ```
 Folder htdocs harus terlihat seperti:
-C:\xampp\htdocs\pertemuan_12\
+C:\xampp\htdocs\Library_management\
                 ├── view/
                 ├── controller/
                 ├── database/
@@ -188,7 +188,7 @@ $dbname = "perpustakaan";
 ## 📁 Struktur Folder
 
 ```
-pertemuan_12/
+Library_management/
 │
 ├── database/
 │   ├── koneksi.php              (Konfigurasi koneksi database)
@@ -256,7 +256,7 @@ pertemuan_12/
 
 ### Login
 
-1. Akses aplikasi: `http://localhost/pertemuan_12`
+1. Akses aplikasi: `http://localhost/Library_management`
 2. Masukkan **Username** dan **Password**
 3. Klik **Login**
 
@@ -343,7 +343,6 @@ Setelah import database, gunakan akun ini untuk login:
 
 Semua tabel dan data default sudah termasuk dalam file:
 - `database/perpustakaan.sql` - Tabel dan data utama
-- `database/perpustakaan_pinjam_detail.sql` - Tabel detail peminjaman
 
 Jika perlu setup manual, lihat bagian **Query Database** di bawah.
 
@@ -406,137 +405,6 @@ ini_set('display_errors', 1);
 3. Cek tabel pengguna di phpMyAdmin
 
 ---
-
-## 📚 Dokumentasi Lengkap Query Database
-
-### Query Database Lengkap
-
-Lihat file `database/perpustakaan.sql` untuk query database lengkap.
-
-Atau jalankan query berikut secara manual di phpMyAdmin:
-
-```sql
--- =====================================================
--- DATABASE PERPUSTAKAAN
--- =====================================================
-DROP DATABASE IF EXISTS perpustakaan;
-CREATE DATABASE perpustakaan;
-USE perpustakaan;
-
--- Tabel Penulis
-CREATE TABLE penulis (
-    id_penulis INT AUTO_INCREMENT PRIMARY KEY,
-    nama VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE,
-    negara VARCHAR(50),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Tabel Buku
-CREATE TABLE buku (
-    id_buku INT AUTO_INCREMENT PRIMARY KEY,
-    judul VARCHAR(200) NOT NULL,
-    id_penulis INT NOT NULL,
-    tahun INT,
-    stok INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_penulis) REFERENCES penulis(id_penulis) ON DELETE CASCADE
-);
-
--- Tabel Anggota
-CREATE TABLE anggota (
-    id_anggota INT AUTO_INCREMENT PRIMARY KEY,
-    nama VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE,
-    no_hp VARCHAR(15) UNIQUE,
-    alamat TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- Tabel Pinjam
-CREATE TABLE pinjam (
-    id_pinjam INT AUTO_INCREMENT PRIMARY KEY,
-    id_anggota INT NOT NULL,
-    id_buku INT NOT NULL,
-    tanggal_pinjam DATE NOT NULL,
-    tanggal_kembali DATE,
-    status ENUM('aktif', 'dikembalikan', 'hilang') DEFAULT 'aktif',
-    denda INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_anggota) REFERENCES anggota(id_anggota) ON DELETE CASCADE,
-    FOREIGN KEY (id_buku) REFERENCES buku(id_buku) ON DELETE CASCADE
-);
-
--- Tabel Pinjam Detail
-CREATE TABLE IF NOT EXISTS pinjam_detail (
-    id_pinjam_detail INT AUTO_INCREMENT PRIMARY KEY,
-    id_pinjam INT NOT NULL,
-    id_buku INT NOT NULL,
-    jumlah INT NOT NULL DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_pinjam (id_pinjam),
-    INDEX idx_buku (id_buku),
-    CONSTRAINT fk_pinjam_detail_pinjam FOREIGN KEY (id_pinjam) REFERENCES pinjam(id_pinjam) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_pinjam_detail_buku FOREIGN KEY (id_buku) REFERENCES buku(id_buku) ON DELETE RESTRICT ON UPDATE CASCADE
-);
-
--- Tabel Activity Log (Audit Trail)
-CREATE TABLE activity_log (
-    id_log INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(100) NOT NULL,
-    action VARCHAR(50) NOT NULL,
-    description TEXT,
-    ip_address VARCHAR(45),
-    user_agent TEXT,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_username (username),
-    INDEX idx_action (action),
-    INDEX idx_timestamp (timestamp)
-);
-
--- Insert Data Penulis
-INSERT INTO penulis (nama, email, negara) VALUES
-('J.K. Rowling', 'jk.rowling@example.com', 'Inggris'),
-('George R.R. Martin', 'george@example.com', 'Amerika'),
-('J.R.R. Tolkien', 'tolkien@example.com', 'Inggris'),
-('Stephenie Meyer', 'stephenie@example.com', 'Amerika'),
-('Suzanne Collins', 'suzanne@example.com', 'Amerika');
-
--- Insert Data Buku
-INSERT INTO buku (judul, id_penulis, tahun, stok) VALUES
-('Harry Potter and the Philosopher\'s Stone', 1, 1997, 5),
-('Harry Potter and the Chamber of Secrets', 1, 1998, 4),
-('A Game of Thrones', 2, 1996, 3),
-('A Clash of Kings', 2, 1998, 2),
-('The Hobbit', 3, 1937, 6),
-('The Lord of the Rings', 3, 1954, 4),
-('Twilight', 4, 2005, 3),
-('The Hunger Games', 5, 2008, 5),
-('Catching Fire', 5, 2009, 3),
-('Mockingjay', 5, 2010, 2);
-
--- Insert Data Anggota
-INSERT INTO anggota (nama, email, no_hp, alamat) VALUES
-('Ahmad Faqih', 'ahmad@example.com', '081234567890', 'Jl. Merdeka No. 1, Jakarta'),
-('Siti Nurhaliza', 'siti@example.com', '081234567891', 'Jl. Sudirman No. 2, Bandung'),
-('Budi Santoso', 'budi@example.com', '081234567892', 'Jl. Gatot Subroto No. 3, Surabaya'),
-('Dewi Lestari', 'dewi@example.com', '081234567893', 'Jl. Ahmad Yani No. 4, Medan'),
-('Rinto Harahap', 'rinto@example.com', '081234567894', 'Jl. Diponegoro No. 5, Yogyakarta');
-
--- Insert Data Pinjam
-INSERT INTO pinjam (id_anggota, id_buku, tanggal_pinjam, tanggal_kembali, status) VALUES
-(1, 1, '2025-11-01', '2025-11-08', 'dikembalikan'),
-(2, 3, '2025-11-02', NULL, 'aktif'),
-(3, 5, '2025-11-03', '2025-11-10', 'dikembalikan'),
-(4, 7, '2025-11-04', NULL, 'aktif'),
-(5, 8, '2025-11-05', NULL, 'aktif');
-```
-
 ---
 
 ## 📞 Support & Bantuan
